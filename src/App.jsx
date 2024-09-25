@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import UserTable from './components/UserTable';
 import SearchBar from './components/SearchBar';
 import Pagination from './components/Pagination';
+import Loading from './components/Loading';
+import { fetchUsers } from './utils/api';
 
 const App = () => {
   const [users, setUsers] = useState([]);
@@ -10,19 +11,23 @@ const App = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUsers, setSelectedUsers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const usersPerPage = 10;
 
   useEffect(() => {
-    fetchUsers();
+    loadUsers();
   }, []);
 
-  const fetchUsers = async () => {
+  const loadUsers = async () => {
+    setIsLoading(true);
     try {
-      const response = await axios.get('https://geektrust.s3-ap-southeast-1.amazonaws.com/adminui-problem/members.json');
-      setUsers(response.data);
-      setFilteredUsers(response.data);
+      const data = await fetchUsers();
+      setUsers(data);
+      setFilteredUsers(data);
     } catch (error) {
       console.error('Error fetching users:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -82,6 +87,12 @@ const App = () => {
     return filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
   };
 
+  const handlePageChange = (newPage) => {
+    setIsLoading(true);
+    setCurrentPage(newPage);
+    setTimeout(() => setIsLoading(false), 300); // Simulate loading delay
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -89,20 +100,24 @@ const App = () => {
         <div className="bg-white shadow-xl rounded-lg overflow-hidden">
           <div className="p-6">
             <SearchBar onSearch={handleSearch} />
-            <UserTable
-              users={getCurrentPageUsers()}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              selectedUsers={selectedUsers}
-              onSelectUser={handleSelectUser}
-              onSelectAll={handleSelectAll}
-            />
+            {isLoading ? (
+              <Loading />
+            ) : (
+              <UserTable
+                users={getCurrentPageUsers()}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                selectedUsers={selectedUsers}
+                onSelectUser={handleSelectUser}
+                onSelectAll={handleSelectAll}
+              />
+            )}
           </div>
           <div className="bg-gray-50 px-6 py-4">
             <Pagination
               currentPage={currentPage}
               totalPages={Math.ceil(filteredUsers.length / usersPerPage)}
-              onPageChange={setCurrentPage}
+              onPageChange={handlePageChange}
             />
           </div>
         </div>

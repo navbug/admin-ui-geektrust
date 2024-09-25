@@ -23,14 +23,19 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 
   const pageNumbers = getPageNumbers();
 
+  const buttonClass = "px-3 py-2 border border-gray-300 text-sm font-medium";
+  const activeButtonClass = "z-10 bg-indigo-100 text-indigo-700";
+  const inactiveButtonClass = "bg-white text-gray-500 hover:bg-gray-50";
+  const disabledButtonClass = "opacity-50 cursor-not-allowed";
+
   return (
-    <nav className="flex justify-center">
-      <ul className="flex">
+    <nav className="flex justify-center mt-4" aria-label="Pagination">
+      <ul className="inline-flex items-center -space-x-px">
         <li>
           <button
             onClick={() => onPageChange(1)}
             disabled={currentPage === 1}
-            className="px-3 py-1 rounded-l-md bg-white border border-gray-300 text-gray-500 hover:bg-gray-50 disabled:opacity-50 first-page"
+            className={`${buttonClass} ${currentPage === 1 ? disabledButtonClass : inactiveButtonClass} first-page`}
           >
             First
           </button>
@@ -39,7 +44,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
           <button
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className="px-3 py-1 bg-white border border-gray-300 text-gray-500 hover:bg-gray-50 disabled:opacity-50 previous-page"
+            className={`${buttonClass} ${currentPage === 1 ? disabledButtonClass : inactiveButtonClass} previous-page`}
           >
             &laquo;
           </button>
@@ -48,9 +53,10 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
           <li key={number}>
             <button
               onClick={() => onPageChange(number)}
-              className={`px-3 py-1 bg-white border border-gray-300 text-gray-500 hover:bg-gray-50 ${
-                currentPage === number ? 'bg-blue-50 text-blue-600' : ''
+              className={`${buttonClass} ${
+                currentPage === number ? activeButtonClass : inactiveButtonClass
               }`}
+              aria-current={currentPage === number ? "page" : undefined}
             >
               {number}
             </button>
@@ -60,7 +66,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
           <button
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="px-3 py-1 bg-white border border-gray-300 text-gray-500 hover:bg-gray-50 disabled:opacity-50 next-page"
+            className={`${buttonClass} ${currentPage === totalPages ? disabledButtonClass : inactiveButtonClass} next-page`}
           >
             &raquo;
           </button>
@@ -69,7 +75,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
           <button
             onClick={() => onPageChange(totalPages)}
             disabled={currentPage === totalPages}
-            className="px-3 py-1 rounded-r-md bg-white border border-gray-300 text-gray-500 hover:bg-gray-50 disabled:opacity-50 last-page"
+            className={`${buttonClass} rounded-r-md ${currentPage === totalPages ? disabledButtonClass : inactiveButtonClass} last-page`}
           >
             Last
           </button>
